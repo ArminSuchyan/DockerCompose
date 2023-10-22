@@ -1,0 +1,39 @@
+version: '3'
+services:
+  app:
+    build:
+      context: . # Build from the Dockerfile in the current directory
+    container_name: nodejs-app-mig
+
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "3030:3000"
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: examplepassword
+      MYSQL_DATABASE: myappdb
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-db-mig
+    environment:
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: myappdb
+  seeder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: myappdb
+      DB_USER: root
+      DB_PASS: examplepassword
+    command: ["node", "seeders/user-seeder.js"]
+   
